@@ -1,8 +1,4 @@
-FROM node:18.17.1-bullseye-slim as build
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
+FROM node:24.22.1-bookworm-slim AS build
 
 WORKDIR /usr/local/app
 
@@ -22,18 +18,16 @@ RUN yarn build
 ENV NODE_ENV=production
 
 # install dependencies with frozen lockfile
-# then clean with node prune
 RUN yarn install --immutable
 
-# install node prune
-RUN curl -sf https://gobinaries.com/tj/node-prune | sh
-
-FROM node:18.17.1-bullseye-slim
+FROM node:24.22.1-bookworm-slim
 
 RUN apt-get update \
      && apt-get install -y wget gnupg ca-certificates procps libxss1 \
-     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+     # apt-key is deprecated on Debian 12 (and removed in newer releases),
+     # thus the signing key is stored in a dedicated keyring instead.
+     && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
      && apt-get update \
      # We install Chrome to get all the OS level dependencies, but Chrome itself
      # is not actually used as it's packaged in the node puppeteer library.

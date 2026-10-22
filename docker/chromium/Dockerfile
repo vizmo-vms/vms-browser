@@ -1,8 +1,4 @@
-FROM --platform=linux/arm64 node:18.17.1-bullseye-slim as build
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
+FROM --platform=linux/arm64 node:24.22.1-bookworm-slim AS build
 
 WORKDIR /usr/local/app
 
@@ -22,13 +18,9 @@ RUN yarn build
 ENV NODE_ENV=production
 
 # install dependencies with frozen lockfile
-# then clean with node prune
 RUN yarn install --immutable
 
-# install node prune
-RUN curl -sf https://gobinaries.com/tj/node-prune | sh
-
-FROM --platform=linux/arm64 node:18.17.1-bullseye-slim
+FROM --platform=linux/arm64 node:24.22.1-bookworm-slim
 
 RUN apt-get update \
      && apt-get install -y wget gnupg ca-certificates procps libxss1 \
