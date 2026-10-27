@@ -4,6 +4,7 @@ WORKDIR /usr/local/app
 
 ENV NODE_ENV=development
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 COPY .yarn ./.yarn
 COPY yarn.lock package.json .yarnrc.yml ./

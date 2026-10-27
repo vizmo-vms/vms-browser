@@ -16,6 +16,10 @@ jobs:
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
   test:
     runs-on: ubuntu-latest
+    env:
+      # Lint and build need no browser. On Node 24 the puppeteer postinstall
+      # never exits after downloading Chrome, which hangs this job.
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
 
     steps:
       - uses: actions/checkout@v3
